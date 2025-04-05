@@ -71,7 +71,7 @@ bitacora-tareas/
 1. **Clonar el repositorio:**
 
 ```bash
-git clone [https://github.com/tu-usuario/tu-repo.git](https://github.com/michelProDev/bitacora.git)
+git clone https://github.com/tu-usuario/tu-repo.git
 cd bitacora
 ```
 
