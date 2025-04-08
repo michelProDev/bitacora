@@ -1,18 +1,19 @@
 package com.btech.bitacora.model.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+
 @Component
 public class ProjectDTO {
+
+    public ProjectDTO() {
+    }
+
+    public ProjectDTO(String nombreProyecto, String cliente) {
+        this.nombreProyecto = nombreProyecto;
+        this.cliente = cliente;
+    }
     public String getNombreProyecto() {
         return nombreProyecto;
     }
@@ -29,13 +30,7 @@ public class ProjectDTO {
         this.cliente = cliente;
     }
 
-    public ProjectDTO() {
-    }
 
-    public ProjectDTO(String nombreProyecto, String cliente) {
-        this.nombreProyecto = nombreProyecto;
-        this.cliente = cliente;
-    }
 
     private String nombreProyecto;
 

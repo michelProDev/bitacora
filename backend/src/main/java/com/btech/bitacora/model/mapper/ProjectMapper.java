@@ -17,9 +17,7 @@ public class ProjectMapper {
 
     public Project toEntity(ProjectDTO proyectoDTO) {
         Project proyecto = new Project();
-
-
-        proyecto.setNombreProyecto(proyectoDTO.get());
+        proyecto.setNombreProyecto(proyectoDTO.getNombreProyecto());
         proyecto.setCliente(proyectoDTO.getCliente());
         return proyecto;
     }

@@ -23,19 +23,19 @@ public class ProjectController {
 
     @PostMapping
     public ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectDTO ProjectDTO) {
-        ProjectDTO createdProject = ProjectService.createProject(ProjectDTO);
+        ProjectDTO createdProject = proyectoService.createProject(ProjectDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProject);
     }
 
     @GetMapping
     public ResponseEntity<List<ProjectDTO>> getAllProjects() {
-        ResponseEntity<List<ProjectDTO>> ok = ResponseEntity.ok(ProjectService.getAllProjects());
+        ResponseEntity<List<ProjectDTO>> ok = ResponseEntity.ok(proyectoService.getAllProjects());
         return ok;
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProjectDTO> getProjectById(@PathVariable Long id) {
-        ResponseEntity<ProjectDTO> projectDTOResponseEntity = ProjectService.getProjectById(id)
+        ResponseEntity<ProjectDTO> projectDTOResponseEntity = proyectoService.getProjectById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
         return projectDTOResponseEntity;
@@ -45,7 +45,7 @@ public class ProjectController {
     public ResponseEntity<ProjectDTO> updateProject(
             @PathVariable Long id,
              @RequestBody ProjectDTO ProjectDTO) {
-        ResponseEntity<ProjectDTO> projectDTOResponseEntity = ProjectService.updateProject(id, ProjectDTO)
+        ResponseEntity<ProjectDTO> projectDTOResponseEntity = proyectoService.updateProject(id, ProjectDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
         return projectDTOResponseEntity;
@@ -54,7 +54,7 @@ public class ProjectController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
 
-        ProjectService.deleteProject(id);
+        proyectoService.deleteProject(id);
         return ResponseEntity.noContent().build();
     }
 }
