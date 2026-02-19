@@ -1,0 +1,10 @@
+**/target
+**/node_modules
+**/dist
+**/.git
+**/.idea
+**/.vscode
+**/logs
+**/*.log
+**/log sistem.drawio
+**/logs sistem.png

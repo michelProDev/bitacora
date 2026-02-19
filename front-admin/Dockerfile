@@ -1,0 +1,19 @@
+FROM node:18-alpine AS build
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm ci
+COPY . .
+ARG VITE_HR_BASE_URL
+ARG VITE_ACCOUNT_BASE_URL
+ARG VITE_CRM_BASE_URL
+ARG VITE_CATALOGO_BASE_URL
+ENV VITE_HR_BASE_URL=${VITE_HR_BASE_URL}
+ENV VITE_ACCOUNT_BASE_URL=${VITE_ACCOUNT_BASE_URL}
+ENV VITE_CRM_BASE_URL=${VITE_CRM_BASE_URL}
+ENV VITE_CATALOGO_BASE_URL=${VITE_CATALOGO_BASE_URL}
+RUN npm run build
+
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 5173

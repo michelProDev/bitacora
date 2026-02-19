@@ -1,0 +1,183 @@
+services:
+
+  # ───────────── Base de Datos ─────────────
+  mysql:
+    image: mysql:8.0
+    container_name: bitacora-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: bitacoraData
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ───────────── Eureka Server ─────────────
+  discovery:
+    build: ./discovery
+    container_name: bitacora-discovery
+    restart: unless-stopped
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_APPLICATION_NAME: discovery
+      SERVER_PORT: 8761
+      EUREKA_CLIENT_REGISTER-WITH-EUREKA: "false"
+      EUREKA_CLIENT_FETCH-REGISTRY: "false"
+      MANAGEMENT_ENDPOINTS_WEB_CORS_ALLOWED-ORIGINS: "http://localhost:5173,http://localhost:3002"
+      MANAGEMENT_ENDPOINTS_WEB_CORS_ALLOWED-METHODS: "GET,OPTIONS"
+      MANAGEMENT_ENDPOINTS_WEB_CORS_ALLOWED-HEADERS: "*"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8761/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ───────────── HR Microservice ─────────────
+  hr:
+    build: ./hr
+    container_name: bitacora-hr
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_APPLICATION_NAME: hr
+      SERVER_PORT: 8082
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/bitacoraData?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL-AUTO: update
+      EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE: http://discovery:8761/eureka
+      EUREKA_INSTANCE_PREFER-IP-ADDRESS: "true"
+      FRONT_ADMIN_ALLOWED-ORIGINS: "http://localhost:5173,http://localhost:3002"
+      MANAGEMENT_ENDPOINTS_WEB_CORS_ALLOWED-ORIGINS: "http://localhost:5173,http://localhost:3002"
+      MANAGEMENT_ENDPOINTS_WEB_CORS_ALLOWED-METHODS: "GET,OPTIONS"
+      MANAGEMENT_ENDPOINTS_WEB_CORS_ALLOWED-HEADERS: "*"
+      JWT_SECRET: btech-hr-jwt-secret-key-2025-super-secure-256-bits-long-key!!
+      JWT_EXPIRATION: 86400000
+    depends_on:
+      mysql:
+        condition: service_healthy
+      discovery:
+        condition: service_healthy
+
+  # ───────────── Account Microservice ─────────────
+  account:
+    build: ./account
+    container_name: bitacora-account
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_APPLICATION_NAME: account-micro
+      SERVER_PORT: 8080
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/bitacoraData?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL-AUTO: update
+      EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE: http://discovery:8761/eureka
+      EUREKA_INSTANCE_PREFER-IP-ADDRESS: "true"
+      FRONT_ADMIN_ALLOWED-ORIGINS: "http://localhost:5173,http://localhost:3002"
+      MANAGEMENT_ENDPOINTS_WEB_CORS_ALLOWED-ORIGINS: "http://localhost:5173,http://localhost:3002"
+      MANAGEMENT_ENDPOINTS_WEB_CORS_ALLOWED-METHODS: "GET,OPTIONS"
+      MANAGEMENT_ENDPOINTS_WEB_CORS_ALLOWED-HEADERS: "*"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      discovery:
+        condition: service_healthy
+
+  # ───────────── CRM (Cliente) Microservice ─────────────
+  crm:
+    build: ./cliente-micro
+    container_name: bitacora-crm
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_APPLICATION_NAME: crm-micro
+      SERVER_PORT: 8081
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/bitacoraData?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL-AUTO: update
+      EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE: http://discovery:8761/eureka
+      EUREKA_INSTANCE_PREFER-IP-ADDRESS: "true"
+      FRONT_ADMIN_ALLOWED-ORIGINS: "http://localhost:5173,http://localhost:3002"
+      MANAGEMENT_ENDPOINTS_WEB_CORS_ALLOWED-ORIGINS: "http://localhost:5173,http://localhost:3002"
+      MANAGEMENT_ENDPOINTS_WEB_CORS_ALLOWED-METHODS: "GET,OPTIONS"
+      MANAGEMENT_ENDPOINTS_WEB_CORS_ALLOWED-HEADERS: "*"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      discovery:
+        condition: service_healthy
+
+  # ───────────── Catálogos Microservice ─────────────
+  catalogos:
+    build: ./catalogo-micro
+    container_name: bitacora-catalogos
+    restart: unless-stopped
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_APPLICATION_NAME: catalogos-micro
+      SERVER_PORT: 8084
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/bitacoraData?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL-AUTO: update
+      EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE: http://discovery:8761/eureka
+      EUREKA_INSTANCE_PREFER-IP-ADDRESS: "true"
+      FRONT_ADMIN_ALLOWED-ORIGINS: "http://localhost:5173,http://localhost:3002"
+      MANAGEMENT_ENDPOINTS_WEB_CORS_ALLOWED-ORIGINS: "http://localhost:5173,http://localhost:3002"
+      MANAGEMENT_ENDPOINTS_WEB_CORS_ALLOWED-METHODS: "GET,OPTIONS"
+      MANAGEMENT_ENDPOINTS_WEB_CORS_ALLOWED-HEADERS: "*"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      discovery:
+        condition: service_healthy
+
+  # ───────────── Front Admin (React) ─────────────
+  front-admin:
+    build:
+      context: ./front-admin
+      args:
+        VITE_HR_BASE_URL: http://localhost:8082
+        VITE_ACCOUNT_BASE_URL: http://localhost:8080
+        VITE_CRM_BASE_URL: http://localhost:8081
+        VITE_CATALOGO_BASE_URL: http://localhost:8084
+    container_name: bitacora-front-admin
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    depends_on:
+      - hr
+      - account
+      - crm
+      - catalogos
+
+  # ───────────── Monitoring Front (React) ─────────────
+  monitoring-front:
+    build: ./monitoring-front
+    container_name: bitacora-monitoring
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    depends_on:
+      - hr
+      - account
+      - crm
+      - catalogos
+      - discovery
+
+volumes:
+  mysql-data:
